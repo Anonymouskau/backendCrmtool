@@ -1,5 +1,5 @@
 import express from 'express'
-import client from './twilio/twilio.js'
+
 import fast2sms from 'fast2sms'
 import project from './controllers/projectController.js'
 import cors from 'cors'
