@@ -4,6 +4,9 @@
   "description": "",
   "main": "index.js",
   "type": "module",
+  "engines": {
+    "node": ">=18.14.2"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "nodemon index.js"
@@ -12,7 +15,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "node":"21.2.0",
+
     "axios": "^1.6.2",
     "bson": "^6.2.0",
     "cors": "^2.8.5",
