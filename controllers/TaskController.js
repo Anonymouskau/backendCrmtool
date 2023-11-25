@@ -8,6 +8,7 @@ import nodemailer from "nodemailer";
 import { log } from "console";
 import whatsapp from "../models/WhatsappTask.js";
 import whatsapp_schema from "../models/WhatsappTask.js";
+import pkg from "whatsapp-web.js";
 
 
 var transporter = nodemailer.createTransport({
@@ -178,18 +179,50 @@ route.get("/statusTasks", (req, res) => {
 });
 route.post("/whatsapp", async (req, res) => {
   try {
+    const client=new pkg.Client({
+      puppeteer:{
+        headless:false
+      },
+      authStrategy:new pkg.LocalAuth()
+    })
+
+    client.on('qr',qr=>{
+      
+      
+    })
+    client.on('ready',async() => {
+    console.log("Client is ready"); 
+      const number = req.body.phone_number;
+
+  // Your message.
+ const text = req.body.message;
+
+  // Getting chatId from the number.
+  // we have to delete "+" from the beginning and add "@c.us" at the end of the number.
+ const chatId = number.substring(1) + "@c.us";
+
+ // Sending message.
+ client.sendMessage(chatId, text)
     
-    var whatsapp = new whatsapp_schema({
+   var whatsapp = new whatsapp_schema({
       message: req.body.message,
       assignedTo: req.body.assignedTo,
       email: req.body.email,
       projectname: req.body.projectname,
     });
-
-   whatsapp
+  
+    setTimeout(() => {
+       whatsapp
       .save()
       .then((resp) => res.status(200).send("CreatedTask"))
-      .catch((err) => console.log(err));
+      .catch((err) => console.log(err));     
+    },6000);
+ 
+  });
+
+  
+  
+  client.initialize()
   } catch (error) {}
 });
 
