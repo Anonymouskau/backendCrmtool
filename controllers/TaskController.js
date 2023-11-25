@@ -10,6 +10,12 @@ import whatsapp from "../models/WhatsappTask.js";
 import whatsapp_schema from "../models/WhatsappTask.js";
 import pkg from "whatsapp-web.js";
 
+const client=new pkg.Client({
+  puppeteer:{
+    headless:true
+  },
+  authStrategy:new pkg.NoAuth()
+})  
 
 var transporter = nodemailer.createTransport({
   service: "gmail",
@@ -179,53 +185,62 @@ route.get("/statusTasks", (req, res) => {
 });
 route.post("/whatsapp", async (req, res) => {
   try {
-    const client=new pkg.Client({
-      puppeteer:{
-        headless:false
-      },
-      authStrategy:new pkg.LocalAuth()
-    })
-
-    client.on('qr',qr=>{
-      
-      
-    })
-    client.on('ready',async() => {
-    console.log("Client is ready"); 
-      const number = req.body.phone_number;
-
-  // Your message.
- const text = req.body.message;
-
-  // Getting chatId from the number.
-  // we have to delete "+" from the beginning and add "@c.us" at the end of the number.
- const chatId = number.substring(1) + "@c.us";
-
- // Sending message.
- client.sendMessage(chatId, text)
     
-   var whatsapp = new whatsapp_schema({
-      message: req.body.message,
-      assignedTo: req.body.assignedTo,
-      email: req.body.email,
-      projectname: req.body.projectname,
-    });
-  
-    setTimeout(() => {
-       whatsapp
-      .save()
-      .then((resp) => res.status(200).send("CreatedTask"))
-      .catch((err) => console.log(err));     
-    },6000);
+    
+    client.on('qr',(qr)=>{
+      
+      res.send({"qr":qr})
+    })
+    client.initialize()
+   
  
-  });
-
+   
   
-  
-  client.initialize()
   } catch (error) {}
 });
+route.post('/whatsappsave',(req,res)=>{
+  try {
+    
+    client.on('ready',async() => {
+      console.log("Client is ready"); 
+        const number = req.body.phone_number;
+  
+    // Your message.
+   const text = req.body.message;
+  
+    // Getting chatId from the number.
+    // we have to delete "+" from the beginning and add "@c.us" at the end of the number.
+   const chatId = number.substring(1) + "@c.us";
+  
+   // Sending message.
+   client.sendMessage(chatId, text)
+      
+     var whatsapp = new whatsapp_schema({
+        message: req.body.message,
+        assignedTo: req.body.assignedTo,
+        email: req.body.email,
+        projectname: req.body.projectname,
+      });
+    
+      setTimeout(() => {
+         whatsapp
+        .save()
+        .then((resp) => res.status(200).send("CreatedTask"))
+        .catch((err) => console.log(err)); 
+        
+       
+        
 
+      },6000);
+   
+    });
+
+    
+  
+  } catch (error) {
+    
+  }
+})
 route.get("/statuswhatsapp", (req, res) => {
   whatsapp_schema.find({
     projectname: req.headers.projectname,
