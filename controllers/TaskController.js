@@ -187,9 +187,9 @@ route.post("/whatsapp", async (req, res) => {
   try {
     
     
-    client.on('qr',(qr)=>{
-      
-      res.send({"qr":qr})
+    client.on('qr',async(qr)=>{
+     
+     await res.send({"qr":qr})
     })
     client.initialize()
    
